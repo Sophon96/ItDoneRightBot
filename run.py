@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 import os
 
 from discord.ext import commands
@@ -5,7 +7,7 @@ import discord
 import json
 import os
 
-client = commands.Bot(command_prefix="!")
+client = commands.Bot(command_prefix="^")
 
 
 # loading credentials into environemnt

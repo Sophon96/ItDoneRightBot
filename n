@@ -1,0 +1,45 @@
+❯ dmesg --time-format=iso | grep oom
+2020-11-15T17:31:34,004888-08:00  oom_kill_process.cold+0xb/0x10
+2020-11-15T17:31:34,005021-08:00 [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+2020-11-15T17:31:34,005317-08:00 [ 115966]  1000 115966     3549        2    57344       61             0 zoom
+2020-11-15T17:31:34,005320-08:00 [ 115969]  1000 115969  1505208   190798  4489216   109476             0 zoom
+2020-11-15T17:31:34,005368-08:00 [ 136169]  1000 136169  1505208   192618  4030464   109398             0 zoom
+2020-11-15T17:31:34,005370-08:00 oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-2.scope,task=chromium,pid=69042,uid=1000
+2020-11-15T17:31:34,005400-08:00 Out of memory: Killed process 69042 (chromium) total-vm:4764008kB, anon-rss:31392kB, file-rss:0kB, shmem-rss:0kB, UID:1000 pgtables:1144kB oom_score_adj:300
+2020-11-15T17:31:34,015672-08:00 oom_reaper: reaped process 69042 (chromium), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+2020-11-15T17:31:34,058845-08:00 python3.8 invoked oom-killer: gfp_mask=0x100dca(GFP_HIGHUSER_MOVABLE|__GFP_ZERO), order=0, oom_score_adj=0
+2020-11-15T17:31:34,058868-08:00  oom_kill_process.cold+0xb/0x10
+2020-11-15T17:31:34,058996-08:00 [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+2020-11-15T17:31:34,059274-08:00 [ 115966]  1000 115966     3549        2    57344       61             0 zoom
+2020-11-15T17:31:34,059279-08:00 [ 115969]  1000 115969  1505208   190798  4489216   109476             0 zoom
+2020-11-15T17:31:34,059331-08:00 [ 136169]  1000 136169  1505208   192618  4030464   109398             0 zoom
+2020-11-15T17:31:34,059333-08:00 oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-2.scope,task=chromium,pid=63311,uid=1000
+2020-11-15T17:31:34,059362-08:00 Out of memory: Killed process 63311 (chromium) total-vm:4807000kB, anon-rss:8196kB, file-rss:0kB, shmem-rss:0kB, UID:1000 pgtables:1168kB oom_score_adj:300
+2020-11-15T17:31:34,074177-08:00 oom_reaper: reaped process 63311 (chromium), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+2020-11-15T17:31:34,180211-08:00 python3.8 invoked oom-killer: gfp_mask=0x100dca(GFP_HIGHUSER_MOVABLE|__GFP_ZERO), order=0, oom_score_adj=0
+2020-11-15T17:31:34,180228-08:00  oom_kill_process.cold+0xb/0x10
+2020-11-15T17:31:34,180325-08:00 [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+2020-11-15T17:31:34,180529-08:00 [ 115966]  1000 115966     3549        2    57344       61             0 zoom
+2020-11-15T17:31:34,180532-08:00 [ 115969]  1000 115969  1505208   190798  4489216   109476             0 zoom
+2020-11-15T17:31:34,180563-08:00 [ 136169]  1000 136169  1505208   192614  4030464   109398             0 zoom
+2020-11-15T17:31:34,180565-08:00 oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-2.scope,task=chromium,pid=109082,uid=1000
+2020-11-15T17:31:34,180588-08:00 Out of memory: Killed process 109082 (chromium) total-vm:4742360kB, anon-rss:26792kB, file-rss:0kB, shmem-rss:0kB, UID:1000 pgtables:1008kB oom_score_adj:300
+2020-11-15T17:31:34,188836-08:00 oom_reaper: reaped process 109082 (chromium), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+2020-11-15T17:31:34,232465-08:00 pritunl-client- invoked oom-killer: gfp_mask=0x100cca(GFP_HIGHUSER_MOVABLE), order=0, oom_score_adj=0
+2020-11-15T17:31:34,232486-08:00  oom_kill_process.cold+0xb/0x10
+2020-11-15T17:31:34,232616-08:00 [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+2020-11-15T17:31:34,232900-08:00 [ 115966]  1000 115966     3549        2    57344       61             0 zoom
+2020-11-15T17:31:34,232904-08:00 [ 115969]  1000 115969  1505208   190762  4489216   109512             0 zoom
+2020-11-15T17:31:34,232955-08:00 [ 136169]  1000 136169  1505208   192578  4030464   109434             0 zoom
+2020-11-15T17:31:34,232956-08:00 oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-2.scope,task=chromium,pid=112851,uid=1000
+2020-11-15T17:31:34,232984-08:00 Out of memory: Killed process 112851 (chromium) total-vm:4806596kB, anon-rss:6752kB, file-rss:0kB, shmem-rss:0kB, UID:1000 pgtables:1088kB oom_score_adj:300
+2020-11-15T17:31:34,260161-08:00 oom_reaper: reaped process 112851 (chromium), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
+2020-11-15T17:31:35,650253-08:00 python3.8 invoked oom-killer: gfp_mask=0x100dca(GFP_HIGHUSER_MOVABLE|__GFP_ZERO), order=0, oom_score_adj=0
+2020-11-15T17:31:35,650270-08:00  oom_kill_process.cold+0xb/0x10
+2020-11-15T17:31:35,650368-08:00 [  pid  ]   uid  tgid total_vm      rss pgtables_bytes swapents oom_score_adj name
+2020-11-15T17:31:35,650560-08:00 [ 115966]  1000 115966     3549        2    57344       61             0 zoom
+2020-11-15T17:31:35,650563-08:00 [ 115969]  1000 115969  1505208   190633  4489216   109641             0 zoom
+2020-11-15T17:31:35,650596-08:00 [ 136169]  1000 136169  1505208   192428  4030464   109565             0 zoom
+2020-11-15T17:31:35,650597-08:00 oom-kill:constraint=CONSTRAINT_NONE,nodemask=(null),cpuset=/,mems_allowed=0,global_oom,task_memcg=/user.slice/user-1000.slice/session-2.scope,task=python3.8,pid=136127,uid=1000
+2020-11-15T17:31:35,650607-08:00 Out of memory: Killed process 136127 (python3.8) total-vm:7836388kB, anon-rss:3264764kB, file-rss:68kB, shmem-rss:0kB, UID:1000 pgtables:6856kB oom_score_adj:0
+2020-11-15T17:31:35,813807-08:00 oom_reaper: reaped process 136127 (python3.8), now anon-rss:0kB, file-rss:0kB, shmem-rss:0kB
