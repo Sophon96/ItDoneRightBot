@@ -7,8 +7,6 @@ import discord
 import json
 import os
 
-client = commands.Bot(command_prefix="^")
-
 # loading credentials into environemnt
 for item in json.load(open("settings.json")).items():
     os.environ[item[0]] = str(item[1])
@@ -29,6 +27,14 @@ async def load(ctx, extension):
 for cog in os.listdir("./cogs"):
     if cog.endswith('.py'):
         client.load_extension(f'cogs.{cog[:-3]}')
+
+# @client.event
+# async def exec(message, args):
+#     if message.content.startswith('^exec') and message.author.id == 560251455714361354:
+#         os.system('exec.sh', args)
+#     else:
+#        await message.channel.send('You are not me, therefore you cannot use this command. This incident will be reported.')
+
 
 if __name__ == "__main__":
     client.run(os.environ["DISCORD_BOT_KEY"])
