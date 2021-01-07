@@ -1,4 +1,4 @@
-# https://youtu.be/vQw8cFfZPx0?t=696
+# https://youtu.be/vQw8cFfZPx0?t=697
 # example code
 from discord.ext import commands
 import discord
