@@ -9,20 +9,6 @@ class Misc(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    # Infinite uptime acheived. *shuts down computer*
-    @commands.command()
-    async def restart(self, ctx):
-        """
-        Restarts the bot
-        """
-        
-        # await ctx.send('it works')
-        await ctx.send('\*\*\*  **Restarting**')
-        # TODO: Flush files
-        # os.fsync()
-        os.execv('run.py', sys.argv)
-        exit(0)
-
     @commands.command()
     async def neko(self, ctx):
         """
