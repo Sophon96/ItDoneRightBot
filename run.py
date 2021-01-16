@@ -7,8 +7,13 @@ import json
 import os
 
 # loading credentials into environment
-for item in json.load(open("settings.json")).items():
-	os.environ[item[0]] = str(item[1])
+try:
+    for item in json.load(open("settings.json")).items():
+        os.environ[item[0]] = str(item[1])
+except FileNotFoundError:
+    print('Please make a settings.json!')
+    exit(1)
+
 
 client = commands.Bot(command_prefix=os.environ["DISCORD_BOT_PREFIX"])
 
