@@ -15,7 +15,7 @@ except FileNotFoundError:
     exit(1)
 
 
-client = commands.Bot(command_prefix=os.environ["DISCORD_BOT_PREFIX"])
+client = commands.AutoShardedBot(command_prefix=os.environ["DISCORD_BOT_PREFIX"])
 
 
 @client.command()
@@ -80,6 +80,7 @@ async def on_command_error(ctx, error):
 async def anna(ctx):
 	"""
 	anna
+        Named after Minecraft Discord's moderator, this command deletes the message
 	:param ctx:
 	:return:
 	"""
