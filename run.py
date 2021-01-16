@@ -27,7 +27,7 @@ async def unload(ctx, extension):
 @client.command()
 @commands.is_owner()
 async def load(ctx, extension):
-	client.unload_extension(f"cogs.{extension}")
+	client.load_extension(f"cogs.{extension}")
 
 
 # https://www.youtube.com/watch?v=vQw8cFfZPx0
