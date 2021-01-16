@@ -86,5 +86,27 @@ class Shell(commands.Cog):
         await ctx.reply(embed=embed)
 
 
+    @commands.command()
+    async def dsh(self, ctx, *args):
+        """
+        Execute stuff inside a docker container
+        """
+        import tempfile
+        import os
+
+        fd, path = tempfile.mkstemp()
+        try:
+            with os.fdopen(fd, 'w') as tmp:
+                tmp.write(' '.join(args))
+
+#                 print(tmp.read())
+            b = subprocess.check_output(f'docker run -it --rm archlinux bash -c "$(cat {path})"', shell=True).decode('utf-8')
+        finally:
+            os.remove(path)
+        print(b)
+        embed = discord.Embed(type='rich', title=f'Output of {" ".join(args)}', color=0xFEFFFF, description=b)
+        await ctx.reply(embed=embed)
+
+
 def setup(client):
     client.add_cog(Shell(client))

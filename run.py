@@ -5,6 +5,7 @@ from discord.ext import commands
 import discord
 import json
 import os
+import subprocess
 
 # loading credentials into environment
 try:
@@ -34,6 +35,19 @@ async def load(ctx, extension):
 for cog in os.listdir("./cogs"):
 	if cog.endswith('.py'):
 		client.load_extension(f'cogs.{cog[:-3]}')
+
+
+@client.command()
+@commands.is_owner()
+async def gp(ctx):
+    """
+    Update the bot by git pull
+    :param ctx:
+    :return:
+    """
+    a = subprocess.check_output('git pull origin master', shell=True).decode('utf-8')
+    embed = discord.Embed(title="Results", description=a)
+    await ctx.reply(embed=embed)
 
 
 @client.command()
