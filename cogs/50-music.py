@@ -2,13 +2,14 @@
 # example code
 from discord.ext import commands
 import discord
-
+import youtube_dl
 import os
 
 
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
+        os.system('rm -rf /tmp/Yup_music/* && mkdir /tmp/Yup_music')
 
     @commands.command()
     async def join(self, ctx):
@@ -27,8 +28,7 @@ class Music(commands.Cog):
         # await a.connect(reconnect=False, timeout=0.01)
         # await vc.connect()
         # I am so fcking tired right now lmao
-        global a
-        a = await vc.connect()
+        await vc.connect()
         # print('done?')
 
     @commands.command()
@@ -41,14 +41,23 @@ class Music(commands.Cog):
         await a.disconnect()
 
     @commands.command()
-    async def download(self, ctx, url):
+    async def download(self, ctx, *urls):
         """
         Downloads a song from URL
         :param ctx:
         :param url:
         :return:
         """
-
+        os.system('mkdir /tmp/Yup_music')
+        with youtube_dl.YoutubeDL({'outtmpl': '/tmp/Yup_music/%(title)s.%(ext)s'}) as ydl:
+            ydl.download(list(urls))
+    
+    @commands.command()
+    async def play(self, ctx, name):
+        a = ctx.author.voice.channel
+        print(a)
+        b = await a.connect()
+        b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/Shooting Stars.mkv'))
 
 
 # setup function also is good
