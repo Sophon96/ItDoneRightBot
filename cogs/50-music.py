@@ -9,7 +9,7 @@ import os
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
-        os.system('rm -rf /tmp/Yup_music/* && mkdir /tmp/Yup_music')
+        os.system('rm -rf /tmp/Yup_music/* &> /dev/null && mkdir /tmp/Yup_music &> /dev/null')
 
     @commands.command()
     async def join(self, ctx):
@@ -49,7 +49,7 @@ class Music(commands.Cog):
         :return:
         """
         await ctx.reply(embed=discord.Embed(title='Downloading...', color=0xFEFFFF))
-        os.system('mkdir /tmp/Yup_music')
+        os.system('mkdir /tmp/Yup_music &> /dev/null')
         with youtube_dl.YoutubeDL({'outtmpl': '/tmp/Yup_music/%(title)s.%(ext)s'}) as ydl:
             ydl.download(list(urls))
         await ctx.reply(embed=discord.Embed(title='Downloaded!', color=0xFEFFFF, description='\n'.join(list(urls))))

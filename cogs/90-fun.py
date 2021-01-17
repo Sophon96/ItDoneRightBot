@@ -1,7 +1,7 @@
 # Yeet
 from discord.ext import commands
 import discord
-
+import requests
 import sys
 import os
 
@@ -14,7 +14,6 @@ class Misc(commands.Cog):
         """
         Nekomimi
         """
-        import requests
         nekos = 'https://nekos.life/api/v2/img/neko'
         nekosjson = requests.get(nekos).json()
         nekoimage = nekosjson['url']
@@ -25,7 +24,6 @@ class Misc(commands.Cog):
         """
         Confused? Ask the 8ball!
         """
-        import requests
         eball = 'https://nekos.life/api/v2/img/8ball'
         eballjson = requests.get(eball).json()
         eballimage = eballjson['url']
@@ -37,12 +35,44 @@ class Misc(commands.Cog):
         """
         Lewd
         """
-        import requests
         lewd = 'https://nekos.life/api/v2/img/lewd'
         lewdjson = requests.get(lewd).json()
         lewdimage = lewdjson['url']
         await ctx.send(lewdimage)
-
+    
+    @commands.command(name='mcstatus', aliases=['mccheck', 'mcch', 'mcs', 'mccheckhealth'])
+    async def _mc_check_health(self, ctx):
+        """
+        Check the health of MC servers. Made for MDSP.
+        """
+        checklist = requests.get('https://status.mojang.com/check').json()
+        sites = {}
+        siteres = {}
+        for i in checklist:
+            try:
+                a = requests.get('http://' + list(i.keys())[0])
+                if a.ok:
+                    sites.update({list(i.keys())[0]: True})
+                    siteres.update({list(i.keys())[0]: 0})
+                else:
+                    sites.update({list(i.keys())[0]: f'{a.status_code} {a.reason}'})
+                    siteres.update({list(i.keys())[0]: 1})
+            except Exception as e:
+                sites.update({list(i.keys())[0]: e})
+                siteres.update({list(i.keys())[0]: 2})
+        # print(sites)
+        embed = discord.Embed(title='MC Service Health', color=0xFEFFFF, description='**NOTE**: `401 Unauthorized` for session.minecraft.net and `404 Not Found` for sessionserver.mojang.com are normal')
+        for i2 in list(sites.keys()):
+            if siteres[i2] == 2:
+                embed.add_field(name=i2, value=f'🟥{sites[i2]}', inline=True)
+            elif siteres[i2] == 1:
+                embed.add_field(name=i2, value=f'🟨 {sites[i2]}', inline=True)
+            elif siteres[i2] == 0:
+                embed.add_field(name=i2, value=f'🟩', inline=True)
+            else:
+                exit('Issue with mc_check_health, 90-fun.py')
+        embed.add_field(name='\u200B', value='\u200B')
+        await ctx.reply(embed=embed)
 # So I need this thing apparently.
 # tbh idk what it does
 def setup(client):
