@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import logging
 import sys
 from discord.ext import commands
 import discord
@@ -7,6 +8,8 @@ import json
 import os
 import subprocess
 
+
+logging.basicConfig(level=logging.INFO)
 # loading credentials into environment
 try:
     for item in json.load(open("settings.json")).items():

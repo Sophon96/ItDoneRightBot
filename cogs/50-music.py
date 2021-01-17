@@ -37,7 +37,7 @@ class Music(commands.Cog):
         Disconnects bot
         :return:
         """
-        global a
+        a = ctx.author.voice.channel
         await a.disconnect()
 
     @commands.command()
@@ -48,16 +48,24 @@ class Music(commands.Cog):
         :param url:
         :return:
         """
+        await ctx.reply(embed=discord.Embed(title='Downloading...', color=0xFEFFFF))
         os.system('mkdir /tmp/Yup_music')
         with youtube_dl.YoutubeDL({'outtmpl': '/tmp/Yup_music/%(title)s.%(ext)s'}) as ydl:
             ydl.download(list(urls))
+        await ctx.reply(embed=discord.Embed(title='Downloaded!', color=0xFEFFFF, description='\n'.join(list(urls)))
     
+    @commands.command(name='listmusic', aliases=['lm'])
+    async def listmusic(self, ctx):
+        a = os.listdir('/tmp/Yup_music/')
+        embed = discord.Embed(title='Availible Music', color=0xFEFFFF, description='\n'.join(a))
+        await ctx.reply(embed=embed)
+
     @commands.command()
     async def play(self, ctx, name):
         a = ctx.author.voice.channel
         print(a)
         b = await a.connect()
-        b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/Shooting Stars.mkv'))
+        b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/{name}'))
 
 
 # setup function also is good
