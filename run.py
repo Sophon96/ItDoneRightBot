@@ -50,19 +50,20 @@ async def gp(ctx):
     await ctx.reply(embed=embed)
 
 
-@client.command()
+@client.command(name='halt', aliases=['stop', 'shutdown'])
 @commands.is_owner()
 async def halt(ctx):
-	"""
-	kills the bot
-	:param ctx:
-	:return:
-	"""
+    """
+    kills the bot
+    :param ctx:
+    :return:
+    """
 
-	embed = discord.Embed(title="Exiting")
-	await ctx.send(embed=embed)
-	print('Exited via Discord command')
-	sys.exit(0)
+    embed = discord.Embed(title="Exiting")
+    await ctx.send(embed=embed)
+    print('Exited via Discord command')
+    await client.close()
+    # exit(0)
 
 
 @client.command()
