@@ -73,6 +73,28 @@ class Misc(commands.Cog):
                 exit('Issue with mc_check_health, 90-fun.py')
         embed.add_field(name='\u200B', value='\u200B')
         await ctx.reply(embed=embed)
+
+    @commands.command(name='checksite', aliases=['cs'])
+    async def _checksite(self, ctx, *urls):
+        """
+        Check the health of a site.
+        """
+        embed = discord.Embed(title='Site Health', color=0xFEFFFF)
+        for i in urls:
+            try:
+                if i[0:7] == 'http://' or i[0:8] == 'https://':
+                    a = requests.get(i)
+                else:
+                    await ctx.reply(embed=discord.Embed(title='No Schema Supplied!', color=0xFEFFFF, description='Assuming http://'))
+                    a = requests.get('http://' + i)
+                if a.ok:
+                    embed.add_field(name=i, value='🟩', inline=True)
+                else:
+                    embed.add_field(name=i, value=f'🟨 {a.status_code} {a.reason}', inline=True)
+            except Exception as e:
+                embed.add_field(name=i, value=f'🟥 {e}', inline=True)
+        await ctx.reply(embed=embed)
+
 # So I need this thing apparently.
 # tbh idk what it does
 def setup(client):
