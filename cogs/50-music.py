@@ -52,7 +52,7 @@ class Music(commands.Cog):
         os.system('mkdir /tmp/Yup_music')
         with youtube_dl.YoutubeDL({'outtmpl': '/tmp/Yup_music/%(title)s.%(ext)s'}) as ydl:
             ydl.download(list(urls))
-        await ctx.reply(embed=discord.Embed(title='Downloaded!', color=0xFEFFFF, description='\n'.join(list(urls)))
+        await ctx.reply(embed=discord.Embed(title='Downloaded!', color=0xFEFFFF, description='\n'.join(list(urls))))
     
     @commands.command(name='listmusic', aliases=['lm'])
     async def listmusic(self, ctx):
