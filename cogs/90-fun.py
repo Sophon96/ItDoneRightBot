@@ -95,6 +95,37 @@ class Misc(commands.Cog):
                 embed.add_field(name=i, value=f'🟥 {e}', inline=True)
         await ctx.reply(embed=embed)
 
+    @commands.command(name='checkserver', aliases=['ms', 'sc', 'chksvr'])
+    async def _check_mc_server(self, ctx, *servers):
+        """
+        Check the stats of a Minecraft server
+        """
+        
+        for i in servers:
+            embed = discord.Embed(title=f'{i} stats', color=0XFEFFFF)
+            try:
+                a = requests.get(f'https://api.mcsrvstat.us/2/{i}').json()
+                if a['online']:
+                    embed.add_field(name='Online', value='Yes', inline=True)
+                    if a['players']['online'] > 0:
+                        embed.add_field(name='Players', value=f'{a["players"]["online"]}/{a["players"]["max"]}', inline=True)
+                        try:
+                            embed.add_field(name='Player Names', value=', '.join(a["players"]["list"]), inline=True)
+                        except:
+                            embed.add_field(name='Player Names', value='Unknown', inline=True)
+                    else:
+                        embed.add_field(name='Players', value=f'0/{a["players"]["max"]}', inline=True)
+                    if len(a['motd']['clean']) == 2:
+                        embed.add_field(name='Name', value=f'{a["motd"]["clean"][0]}', inline=True)
+                        embed.add_field(name='MOTD', value=f'MOTD: {a["motd"]["clean"][1]}', inline=True)
+                    else:
+                        embed.add_field(name='Name', value=f'{a["motd"]["clean"][0]}', inline=True)
+                else:
+                    embed.add_field(name='Online', value='No')
+            except Exception as e:
+                embed.add_field(name=i, value=f'Something went wrong!\nException: {e}', inline=True)
+            await ctx.reply(embed=embed)
+
 # So I need this thing apparently.
 # tbh idk what it does
 def setup(client):
