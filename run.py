@@ -49,7 +49,7 @@ async def gp(ctx):
     :return:
     """
     a = subprocess.check_output('git pull origin master', shell=True).decode('utf-8')
-    embed = discord.Embed(title="Results", description=a)
+    embed = discord.Embed(title="Results", color=0xFEFFFF, description=a)
     await ctx.reply(embed=embed)
 
 
@@ -62,7 +62,7 @@ async def halt(ctx):
     :return:
     """
 
-    embed = discord.Embed(title="Exiting")
+    embed = discord.Embed(title="Exiting", color=0xFEFFFF)
     await ctx.send(embed=embed)
     print('Exited via Discord command')
     await client.close()
@@ -76,7 +76,7 @@ async def restart(ctx):
 	Restarts the bot
 	"""
 
-	await ctx.reply(content='\*\*\*  **Restarting**', mention_author=True)
+	await ctx.reply(content='🟥🟩 **Restarting** 🟩🟥', mention_author=True)
 	# TODO: Flush files
 	# os.fsync()
 	os.execv('run.py', sys.argv)
