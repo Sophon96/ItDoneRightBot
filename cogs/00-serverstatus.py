@@ -19,7 +19,7 @@ class ServerStatus(commands.Cog):
         """
         osr = open('/etc/os-release', 'r')
         osname = osr.readline()[6:-2]
-        embed = discord.Embed(title="Server Status", type="rich", color=0xEEEEEE)
+        embed = discord.Embed(title="Server Status", type="rich", color=0xFEFFFF)
         vmem = psutil.virtual_memory()
         embed.add_field(name="RAM Usage", value=f"{round(vmem.used/1073741824, 2)}GiB out of {round(vmem.total/1073741824, 2)}GiB")
         embed.add_field(name="CPU Usage", value=f"{psutil.cpu_percent()}%")
@@ -43,7 +43,7 @@ class ServerStatus(commands.Cog):
         """
         Posts invite link
         """
-        embed = discord.Embed(title="Invite Link", type="rich", description=discord.utils.oauth_url(client_id="686423436112691275"))
+        embed = discord.Embed(title="Invite Link", type="rich", color=0xFEFFFF, description=discord.utils.oauth_url(client_id="686423436112691275"))
         embed.set_thumbnail(url="https://i.imgur.com/lmxN3JN.png")
         # embed.add_field(name="test", value=discord.utils.oauth_url(client_id="686423436112691275"))
         await ctx.send(embed=embed)
