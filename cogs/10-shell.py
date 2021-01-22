@@ -57,7 +57,7 @@ class Shell(commands.Cog):
             # execute the the file and then decode the 
             # output (it's in binary by default) with 
             # UTF-8 and assign it to c
-            c = subprocess.check_output(f'python {path}', shell=True).decode('utf-8')
+            c = subprocess.check_output(f'python3 {path}', shell=True).decode('utf-8')
         # Removal of the file
         finally:
             os.remove(path)
