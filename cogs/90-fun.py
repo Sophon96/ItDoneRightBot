@@ -40,7 +40,11 @@ class Misc(commands.Cog):
         lewdimage = lewdjson['url']
         await ctx.send(lewdimage)
     
+    def checkIfMDSP(ctx):
+        return ctx.guild.id == 764981968579461130
+
     @commands.command(name='mcstatus', aliases=['mccheck', 'mcch', 'mcs', 'mccheckhealth'])
+    @commands.check(checkIfMDSP)
     async def _mc_check_health(self, ctx):
         """
         Check the health of MC servers. Made for MDSP.
@@ -73,6 +77,47 @@ class Misc(commands.Cog):
                 exit('Issue with mc_check_health, 90-fun.py')
         embed.add_field(name='\u200B', value='\u200B')
         await ctx.reply(embed=embed)
+
+    # TODO: Potentially fix later
+    # def checkInt(e):
+    #     try:
+    #         int(e)
+    #         return True
+    #     except ValueError:
+    #         return False
+    
+    @commands.command(name='xkcd')
+    async def _xkcd(self, ctx, *numbers):
+        """
+        Get a xkcd comic
+        """
+        # print(numbers)
+        for i in numbers:
+            # print(i)
+            # TODO: Potentially fix later
+            # if not checkInt(i):
+            #     print(0)
+            #     await ctx.reply(embed=discord.Embed(title=f'{i} is not a valid integer!', description="yeet"))
+            #     continue
+            # print('Before requests')
+            a = requests.get(f'https://xkcd.com/{i}/info.0.json')
+            # print(a)
+            if a.ok:
+                # print(1)
+                a = a.json()
+                yeet = discord.Embed(color=0xFEFFFF, title=a["title"])
+                yeet.add_field(name='Year', value=a["year"])
+                yeet.add_field(name='Month', value=a["month"])
+                yeet.add_field(name='Day', value=a["day"])
+                yeet.set_footer(text=a["alt"])
+                yeet.set_image(url=a["img"])
+                await ctx.reply(embed=yeet)
+            else:
+                # print(2)
+                bad = discord.Embed(color=0xFEFFFF, title=f'Bad response getting xkcd {i}')
+                bad.add_field(name='Status code', value=a.status_code)
+                bad.add_field(name='Reason', value=a.reason)
+                await ctx.reply(embed=bad)
 
     @commands.command(name='checksite', aliases=['cs'])
     async def _checksite(self, ctx, *urls):
