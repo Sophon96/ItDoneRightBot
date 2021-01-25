@@ -19,6 +19,7 @@ class ServerStatus(commands.Cog):
         """
         osr = open('/etc/os-release', 'r')
         osname = osr.readline()[6:-2]
+        osr.close()
         embed = discord.Embed(title="Server Status", type="rich", color=0xFEFFFF)
         vmem = psutil.virtual_memory()
         embed.add_field(name="RAM Usage", value=f"{round(vmem.used/1073741824, 2)}GiB out of {round(vmem.total/1073741824, 2)}GiB")
