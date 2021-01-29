@@ -21,7 +21,6 @@ except FileNotFoundError:
 
 client = commands.AutoShardedBot(command_prefix=os.environ["DISCORD_BOT_PREFIX"])
 
-
 @client.command()
 @commands.is_owner()
 async def unload(ctx, extension):

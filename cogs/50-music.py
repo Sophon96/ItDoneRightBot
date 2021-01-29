@@ -37,8 +37,7 @@ class Music(commands.Cog):
         Disconnects bot
         :return:
         """
-        a = ctx.author.voice.channel
-        await a.disconnect()
+        await ctx.guild.voice_client.disconnect()
 
     @commands.command()
     async def download(self, ctx, *urls):
@@ -62,9 +61,7 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, name):
-        a = ctx.author.voice.channel
-        print(a)
-        b = await a.connect()
+        b = ctx.guild.voice_client
         b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/{name}'))
 
 
