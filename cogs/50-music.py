@@ -4,6 +4,7 @@ from discord.ext import commands
 import discord
 import youtube_dl
 import os
+from youtube_search import YoutubeSearch
 
 
 class Music(commands.Cog):
@@ -63,6 +64,21 @@ class Music(commands.Cog):
     async def play(self, ctx, name):
         b = ctx.guild.voice_client
         b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/{name}'))
+
+    @commands.command()
+    async def search(self, ctx, *terms):
+        """
+        """
+        term = ' '.join(terms)
+        results = YoutubeSearch(term, max_results=10).to_dict()
+        embed = discord.Embed(title='Results', color=0xFEFFFF)
+        for i in results:
+            embed.add_field(name=i["title"], value=f'Channel: {i["channel"]}\nURL: https://youtube.com{i["url_suffix"]}\nDuration: {i["duration"]}\nViews: {i["views"]}\n[Thumbnail]({i["thumbnails"][0]})', inline=False)
+        await ctx.reply(embed=embed)
+
+    @search.error
+    async def yeet(self, ctx, error):
+        print(f'ctx: {ctx}\nError: {error}')
 
 
 # setup function also is good
