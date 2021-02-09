@@ -63,7 +63,7 @@ class Music(commands.Cog):
     @commands.command()
     async def play(self, ctx, name):
         b = ctx.guild.voice_client
-        b.play(discord.FFmpegOpusAudio(source=f'/tmp/Yup_music/{name}'))
+        b.play(discord.FFmpegOpusAudio(name))
 
     @commands.command()
     async def search(self, ctx, *terms):
