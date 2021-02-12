@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 import logging
-import sys
+from time import sleep
 from discord.ext import commands
 import discord
 import json
@@ -132,5 +132,6 @@ async def anna(ctx):
 
 if __name__ == "__main__":
     while not halt_state:
+        sleep(5)
         client.run(os.environ["DISCORD_BOT_KEY"])
 # vimming
