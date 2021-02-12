@@ -30,7 +30,7 @@ class Music(commands.Cog):
         if ctx.author.voice is not None:
             if ctx.voice_client is not None and ctx.voice_client.channel != ctx.author.voice.channel:
                 await ctx.voice_client.move_to(ctx.author.voice.channel)
-                ctx.reply('Connnected!')
+                await ctx.reply('Connnected!')
             else:
                 vc = ctx.author.voice.channel
                 await vc.connect()
@@ -76,18 +76,20 @@ class Music(commands.Cog):
     async def play(self, ctx, name):
         if ctx.guild.voice_client is not None and ctx.author.voice is not None:
             if ctx.author.voice.channel == ctx.guild.voice_client.channel:
-                b = ctx.guild.voice_client
+                b = ctx.voice_client
                 c = self.ytdl.extract_info(url=name, download=False)
-                await self.embed_maker(ctx=ctx, ytdl_info=c)
+                if b.is_playing() or b.is_paused():
+                    b.stop()
                 b.play(discord.FFmpegOpusAudio(c['url']))
+                await self.embed_maker(ctx=ctx, ytdl_info=c)
             else:
-                if ctx.guild.voice_client.is_playing() or ctx.guild.voice_client.is_paused():
-                    await ctx.guild.voice_client.stop()
-                await ctx.guild.voice_client.move_to(ctx.author.voice.channel)
-                b = ctx.guild.voice_client
+                await ctx.voice_client.move_to(ctx.author.voice.channel)
+                b = ctx.voice_client
                 c = self.ytdl.extract_info(url=name, download=False)
-                await self.embed_maker(ctx=ctx, ytdl_info=c)
+                if b.is_playing() or b.is_paused():
+                    b.stop()
                 b.play(discord.FFmpegOpusAudio(c['url']))
+                await self.embed_maker(ctx=ctx, ytdl_info=c)
         elif ctx.author.voice is not None:
             b = await ctx.author.voice.channel.connect()
             await self.embed_maker(ctx=ctx, ytdl_info=self.ytdl.extract_info(url=name, download=False))
@@ -97,7 +99,7 @@ class Music(commands.Cog):
 
     @commands.command(name='play')
     async def _play(self, ctx, name):
-        await play(ctx=ctx, name=name)
+        await self.play(ctx=ctx, name=name)
 
     @_play.error
     async def play_error(self, ctx, error):
