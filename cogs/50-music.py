@@ -5,6 +5,7 @@ import discord
 import youtube_dl
 import os
 import datetime
+import asyncio
 from youtube_search import YoutubeSearch
 
 
@@ -16,9 +17,11 @@ class Music(commands.Cog):
                 'noplaylist': True,
                 'ignoreerrors': False,
                 'quiet': True,
-                'no_warnings': True
+                'no_warnings': True,
+                'default_search': 'ytsearch'
                 }
         self.ytdl = youtube_dl.YoutubeDL(options)
+        self.queue = {}
 
     @commands.command()
     async def join(self, ctx):
@@ -83,8 +86,14 @@ class Music(commands.Cog):
                 b.play(discord.FFmpegOpusAudio(c['url']))
                 await self.embed_maker(ctx=ctx, ytdl_info=c)
             else:
+                print(ctx.voice_client.channel)
                 await ctx.voice_client.move_to(ctx.author.voice.channel)
-                b = ctx.voice_client
+                # Seems like the `await` doesn't actually wait until it finishes before calling stuff below, oddly.
+                # This `sleep` line ensures that the bot will move before b is defined and all the other stuff happens.
+                # I mean, its not like Discord bots need to be *that* fast, right?
+                await asyncio.sleep(2)
+                b = ctx.voice_client # b = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
+                print(b.channel)
                 c = self.ytdl.extract_info(url=name, download=False)
                 if b.is_playing() or b.is_paused():
                     b.stop()
