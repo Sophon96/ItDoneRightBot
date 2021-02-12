@@ -8,7 +8,6 @@ import json
 import os
 import subprocess
 
-
 logging.basicConfig(level=logging.INFO)
 # loading credentials into environment
 try:
@@ -18,25 +17,52 @@ except FileNotFoundError:
     print('Please make a settings.json!')
     exit(1)
 
-
 client = commands.AutoShardedBot(command_prefix=os.environ["DISCORD_BOT_PREFIX"])
+
+halt_state = False
 
 @client.command()
 @commands.is_owner()
 async def unload(ctx, extension):
-	client.unload_extension(f'cogs.{extension}')
+    client.unload_extension(f'cogs.{extension}')
+    await ctx.reply(f'Successfully unloaded cog {extension}.')
 
 
 @client.command()
 @commands.is_owner()
 async def load(ctx, extension):
-	client.load_extension(f"cogs.{extension}")
+    client.load_extension(f"cogs.{extension}")
+    await ctx.reply(f'Successfully loaded cog {extension}.')
+
+
+@client.command()
+@commands.is_owner()
+async def reload(ctx, extension):
+    client.reload_extension(f'cogs.{extension}')
+    await ctx.reply(f'Successfully reloaded cog {extension}.')
+
+
+@client.command()
+@commands.is_owner()
+async def reload_all(ctx):
+    for _cog in os.listdir("./cogs"):
+        if cog.endswith('.py'):
+            client.reload_extension(f'cogs.{cog[:-3]}')
+    await ctx.reply('Successfully reloaded all cogs.')
+
+
+@reload_all.error
+@reload.error
+@load.error
+@unload.error
+async def cog_load_error(ctx, error):
+    ctx.reply(f'An error occurred which trying to load/unload/reload cog(s)! Error:```py\n{error}```')
 
 
 # https://www.youtube.com/watch?v=vQw8cFfZPx0
 for cog in os.listdir("./cogs"):
-	if cog.endswith('.py'):
-		client.load_extension(f'cogs.{cog[:-3]}')
+    if cog.endswith('.py'):
+        client.load_extension(f'cogs.{cog[:-3]}')
 
 
 @client.command()
@@ -61,49 +87,50 @@ async def halt(ctx):
     :return:
     """
 
+    global halt_state
     embed = discord.Embed(title="Exiting", color=0xFEFFFF)
     await ctx.send(embed=embed)
-    print('Exited via Discord command')
+    # print('Exited via Discord command')
+    halt_state = True
     await client.close()
-    # exit(0)
 
 
 @client.command()
 @commands.is_owner()
 async def restart(ctx):
-	"""
-	Restarts the bot
-	"""
+    """
+    Restarts the bot
+    """
 
-	await ctx.reply(content='🟥🟩 **Restarting** 🟩🟥', mention_author=True)
-	# TODO: Flush files
-	# os.fsync()
-	os.execv('run.py', sys.argv)
-	exit(0)
+    global halt_state
+    await ctx.reply(content='🟥🟩 **Restarting** 🟩🟥', mention_author=True)
+    halt_state = False
+    await client.close()
 
 
 @client.event
 async def on_command_error(ctx, error):
-	if isinstance(error, commands.CommandNotFound):
-		yeet = discord.Embed(title='Unknown command', color=0xfeffff, description=ctx.message.content)
-		await ctx.reply(embed=yeet)
-	elif isinstance(error, commands.NotOwner):
-		await ctx.reply(content='You do not have sufficient permissions to execute this command. This incident will be '
-																		'reported')
-		print(f'!!! {ctx.author.name} ID={ctx.author.id} attempted to use a owner-only command.')
+    if isinstance(error, commands.CommandNotFound):
+        yeet = discord.Embed(title='Unknown command', color=0xfeffff, description=ctx.message.content)
+        await ctx.reply(embed=yeet)
+    elif isinstance(error, commands.NotOwner):
+        await ctx.reply(content='You do not have sufficient permissions to execute this command. This incident will be '
+                                'reported')
+        print(f'!!! {ctx.author.name} ID={ctx.author.id} attempted to use a owner-only command.')
 
 
 @client.command()
 async def anna(ctx):
-	"""
-	anna
+    """
+    anna
         Named after Minecraft Discord's moderator, this command deletes the message
-	:param ctx:
-	:return:
-	"""
-	await ctx.message.delete()
+    :param ctx:
+    :return:
+    """
+    await ctx.message.delete()
 
 
 if __name__ == "__main__":
-	client.run(os.environ["DISCORD_BOT_KEY"])
+    while not halt_state:
+        client.run(os.environ["DISCORD_BOT_KEY"])
 # vimming
