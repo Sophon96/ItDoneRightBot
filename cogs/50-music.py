@@ -81,9 +81,11 @@ class Music(commands.Cog):
             if ctx.author.voice.channel == ctx.guild.voice_client.channel:
                 b = ctx.voice_client
                 c = self.ytdl.extract_info(url=name, download=False)
+                if 'entries' in c:
+                    c = c['entries'][0]
                 if b.is_playing() or b.is_paused():
                     b.stop()
-                b.play(discord.FFmpegOpusAudio(c['url']))
+                b.play(discord.FFmpegOpusAudio(c['url']), after=lambda e: print('Player error: %s' % e) if e else None)
                 await self.embed_maker(ctx=ctx, ytdl_info=c)
             else:
                 print(ctx.voice_client.channel)
@@ -95,14 +97,16 @@ class Music(commands.Cog):
                 b = ctx.voice_client # b = discord.utils.get(self.client.voice_clients, guild=ctx.guild)
                 print(b.channel)
                 c = self.ytdl.extract_info(url=name, download=False)
+                if 'entries' in c:
+                    c = c['entries'][0]
                 if b.is_playing() or b.is_paused():
                     b.stop()
-                b.play(discord.FFmpegOpusAudio(c['url']))
+                b.play(discord.FFmpegOpusAudio(c['url']), after=lambda e: print('Player error: %s' % e) if e else None)
                 await self.embed_maker(ctx=ctx, ytdl_info=c)
         elif ctx.author.voice is not None:
             b = await ctx.author.voice.channel.connect()
-            await self.embed_maker(ctx=ctx, ytdl_info=self.ytdl.extract_info(url=name, download=False))
-            b.play(discord.FFmpegOpusAudio(self.ytdl.extract_info(url=name, download=False)['url']))
+            await self.embed_maker(ctx=ctx, ytdl_info=self.ytdl.extract_info(url=name, download=False) if 'entries' not in self.ytdl.extract_info(url=name, download=False) else self.ytdl.extract_info(url=name, download=False)['entries'][0])
+            b.play(discord.FFmpegOpusAudio(self.ytdl.extract_info(url=name, download=False)['url']), after=lambda e: print('Player error: %s' % e) if e else None)
         else:
             await ctx.reply('You are not connected to a voice channel')
 
@@ -112,18 +116,17 @@ class Music(commands.Cog):
 
     @_play.error
     async def play_error(self, ctx, error):
-        print(f'\e[0;31m---------------\nctx: {ctx}\nError: {error}\n---------------\e[0m')
+        print(f'\033[31m---------------\nctx: {ctx}\nError: {error}\n---------------\033[0m')
         
     @commands.command()
     async def search(self, ctx, *terms):
         """
         """
-        import asyncio
         term = ' '.join(terms)
-        results = YoutubeSearch(term, max_results=10).to_dict()
+        results = self.ytdl.extract_info(url=f'ytsearch10:{term}', download=False)['entries']
         embed = discord.Embed(title='Results', color=0xFEFFFF)
         for i in results:
-            embed.add_field(name=i["title"], value=f'Channel: {i["channel"]}\nURL: https://youtube.com{i["url_suffix"]}\nDuration: {i["duration"]}\nViews: {i["views"]}\n[Thumbnail]({i["thumbnails"][0]})', inline=False)
+            embed.add_field(name=f'{results.index(i) + 1}. {i["title"]}', value=f'Channel: {i["uploader"]}\nURL: {i["url"]}\nDuration: {i["duration"]}\nViews: {i["view_count"]}\nBitrate: {i["abr"]}\n[Thumbnail]({i["thumbnails"][0]})', inline=False)
         await ctx.reply(embed=embed)
         channel = ctx.channel
 
@@ -142,7 +145,7 @@ class Music(commands.Cog):
             print(e)
             await ctx.reply('You did not choose a valid song in time.')
         else:
-            await self.play(ctx=ctx, name=f'https://youtube.com{results[int(num.content) - 1]["url_suffix"]}')
+            await self.play(ctx=ctx, name=f'{results[int(num.content) - 1]["url"]}')
 
     @search.error
     async def yeet(self, ctx, error):
