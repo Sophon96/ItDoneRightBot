@@ -1,110 +1,62 @@
 from discord.ext import commands
 import discord
-import subprocess
+import asyncio
+
 
 class Shell(commands.Cog):
     """
-    The ability to execute shell or Python commands through my bot. These are only usable by <@560251455714361354>
+    Cog for executing arbitrary Python code or shell commands, usable only by the owner of the bot.
     """
     def __init__(self, client):
         self.client = client
 
-    @commands.command()
+    @commands.command(name='exec', aliases=['eval'])
     @commands.is_owner()
     async def exec(self, ctx, *args):
         """
-        Execute Python code
+        Execute arbitrary Python code
         :param ctx:
         :param args:
         :return:
         """
-        # Just importing some stuff
-        # We are going to use os to remove the temporary file
-        # and tempfile to make the temporary file
-        import os
-        import tempfile
-
-        # The way that this is going to work
-        # Is that we will write the command(s)
-        # the owner (probably me or you) has passed
-        # into a temporary file
-        #
-        # Then, we will use subprocess to use
-        # Python to execute that file
-        # 
-        # We are wrapping the file related things
-        # in a try finally block as we want the 
-        # file deleted even if the code errors
-
-        # Make a temporary file using tempfile
-        # and assign the file descriptor to fd
-        # and the path of the file to path
-        fd, path = tempfile.mkstemp()
-
-        # Start of the try block and interaction
-        # with the file
-        try:
-            # Open the file using a with statement
-            # so that the file will be automatically
-            # closed
-            with os.fdopen(fd, 'w') as tmp:
-                # Turn the arguments from a tuple to
-                # a string by putting spaces in between
-                # all of the values in the tuple
-                # and write it to the temporary file
-                tmp.write(' '.join(args))
-            # Use subprocess to use sh to use Python to
-            # execute the the file and then decode the 
-            # output (it's in binary by default) with 
-            # UTF-8 and assign it to c
-            c = subprocess.check_output(f'python3 {path}', shell=True).decode('utf-8')
-        # Removal of the file
-        finally:
-            os.remove(path)
-        
-        # Make a discord embed with the title of "Output of <command>",
-        # the color of #FEFFFF (I would use #FFFFFF, but that's reserved),
-        # and the description of c (so we don't need to mess around with
-        # add_field and such).
-        embed = discord.Embed(title=f'Output of {" ".join(args)}', color=0xFEFFFF, description=c)
-        # SEND DA MESSAGE
+        a = ' '.join(args)
+        b = compile(a, 'Discord', 'eval', optimize=2)
+        c = eval(b)
+        embed = discord.Embed(title=f'Results', color=0xFEFFFF)
+        embed.add_field(name='Input', value=f'```py\n{a}\n```', inline=False)
+        embed.add_field(name='Output', value=f'```\n{c}\n```', inline=False)
         await ctx.reply(embed=embed)
-
 
     @commands.command(name='sh')
     @commands.is_owner()
     async def sh(self, ctx, *args):
         """
-        Execute shell commands
+        Execute arbitrary shell commands
         :param ctx:
         :param args:
         :return:
         """
-        a = subprocess.check_output(list(args)).decode('utf-8')
-        print(args, list(args), a)
-        embed = discord.Embed(type='rich', title=f'Output of {" ".join(args)}', color=0xFEFFFF, description=a)
+        c = ' '.join(args)
+        a = await asyncio.create_subprocess_shell(c, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+        b = await a.communicate()
+        embed = discord.Embed(type='rich', title=f'Results', color=0xFEFFFF)
+        embed.add_field(name='Input', value=f'```sh\n{c}\n```', inline=False)
+        embed.add_field(name='Output', value=f'```\n{b[0].decode()}\n```', inline=False)
         await ctx.reply(embed=embed)
-
 
     @commands.command()
     async def dsh(self, ctx, *args):
         """
-        Execute stuff inside a docker container
+        Execute arbitrary shell commands inside a docker container
         """
-        import tempfile
-        import os
-
-        fd, path = tempfile.mkstemp()
-        try:
-            with os.fdopen(fd, 'w') as tmp:
-                tmp.write(' '.join(args))
-
-#                 print(tmp.read())
-            b = subprocess.check_output(f'docker run -it --rm archlinux bash -c "$(cat {path})"', shell=True).decode('utf-8')
-        finally:
-            os.remove(path)
-        print(b)
-        embed = discord.Embed(type='rich', title=f'Output of {" ".join(args)}', color=0xFEFFFF, description=b)
+        a = await asyncio.create_subprocess_shell('docker run -t --rm --cpus=0.1 -m 50M archlinux ' + ' '.join(args),
+                                                  stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+        a = await a.communicate()
+        a = a[0].decode()
+        b = ' '.join(args)
+        embed = discord.Embed(type='rich', title='Results', color=0xFEFFFF)
+        embed.add_field(name='Input', value=f'```sh\n{b}\n```', inline=False)
+        embed.add_field(name='Output', value=f'```\n{a}\n```', inline=False)
         await ctx.reply(embed=embed)
 
 
