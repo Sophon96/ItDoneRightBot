@@ -105,7 +105,7 @@ async def restart(ctx):
     global halt_state
     await ctx.reply(content='🟥🟩 **Restarting** 🟩🟥', mention_author=True)
     halt_state = False
-    await client.close()
+    await client.clear()
 
 
 @client.event
@@ -131,7 +131,5 @@ async def anna(ctx):
 
 
 if __name__ == "__main__":
-    while not halt_state:
-        sleep(5)
-        client.run(os.environ["DISCORD_BOT_KEY"])
+    client.run(os.environ["DISCORD_BOT_KEY"])
 # vimming
