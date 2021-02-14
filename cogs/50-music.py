@@ -5,21 +5,26 @@ import discord
 import youtube_dl
 import datetime
 import asyncio
+import logging
 
 
 class Music(commands.Cog):
     def __init__(self, client):
         self.client = client
+        ytdl_logger = logging.getLogger('ItDoneRightBot.cogs.50-music.YoutubeDL')
+        ytdl_logger.setLevel(level=logging.DEBUG)
         options = {
             'format': 'bestaudio/best',
             'noplaylist': True,
             'ignoreerrors': False,
-            'quiet': True,
-            'no_warnings': True,
-            'default_search': 'ytsearch'
+            'quiet': False,
+            'no_warnings': False,
+            'default_search': 'ytsearch',
+            'logger': ytdl_logger
         }
         self.ytdl = youtube_dl.YoutubeDL(options)
-        self.queue = {}
+        # TODO: Implement queue
+        # self.queue = {}
 
     @commands.command()
     async def join(self, ctx):
@@ -64,7 +69,7 @@ class Music(commands.Cog):
             pass
         try:
             # Set title of the song
-            embed.add_field(name='Title', value=f'[{ytdl_info["title"]}]({ytdl_info["url"]})', inline=False)
+            embed.add_field(name='Title', value=f'[{ytdl_info["title"]}]({ytdl_info["webpage_url"]})', inline=False)
         except KeyError:
             pass
         try:
@@ -147,9 +152,10 @@ class Music(commands.Cog):
         elif ctx.author.voice is not None:
 
             x = self.ytdl.extract_info(url=name, download=False)
+            x = x if 'entries' not in x else x['entries'][0]
             b = await ctx.author.voice.channel.connect()
-            await self.embed_maker(ctx=ctx, ytdl_info=x if 'entries' not in x else x['entries'][0])
-            b.play(discord.FFmpegOpusAudio(self.ytdl.extract_info(url=name, download=False)['url']),
+            await self.embed_maker(ctx=ctx, ytdl_info=x)
+            b.play(discord.FFmpegOpusAudio(x['url']),
                    after=lambda e: print('Player error: %s' % e) if e else None)
 
         # If the user is not a voice channel
@@ -157,9 +163,9 @@ class Music(commands.Cog):
             await ctx.reply('You are not connected to a voice channel')
 
     @commands.command(name='play')
-    async def _play(self, ctx, name):
+    async def _play(self, ctx, *name):
         # Just calls the real play function
-        await self.play(ctx=ctx, name=name)
+        await self.play(ctx=ctx, name=' '.join(name))
 
     @_play.error
     async def play_error(self, ctx, error):
@@ -169,15 +175,22 @@ class Music(commands.Cog):
     @commands.command()
     async def search(self, ctx, *terms):
         """
-        Searches YouTube for music/videos.
+        Searches YouTube for music/videos, then play it.
         :param ctx:
         :param terms:
         :return:
         """
+        # Join all the search terms into one string
         term = ' '.join(terms)
+
+        # Use YoutubeDL to get 10 results matching the search terms
         results = self.ytdl.extract_info(url=f'ytsearch10:{term}', download=False)['entries']
+
+        # Initialize embed
         embed = discord.Embed(title='Results', color=0xFEFFFF)
+
         for i in results:
+            # Add helpful info for each song.
             embed.add_field(name=f'{results.index(i) + 1}. {i["title"]}',
                             value=f'Channel: {i["uploader"]}\n'
                                   f'Duration: {datetime.timedelta(seconds=i["duration"])}\n',
@@ -185,27 +198,54 @@ class Music(commands.Cog):
         await ctx.reply(embed=embed)
         channel = ctx.channel
 
+        # The check for the following wait_for
         def check_int(f):
             try:
-                int(f.content)
-                if f.channel == channel:
+                # Checks to see if the user sent a valid integer less that 10
+                # and that the message was sent in the same channel
+                if int(f.content) <= 10 and f.channel == channel:
                     return True
                 else:
+                    # Not the same channel
                     return False
             except ValueError:
+                # Not a valid integer
                 return False
 
         try:
+            # Wait for the user to pick a song
             num = await self.client.wait_for('message', timeout=60.0, check=check_int)
-        except Exception as e:
-            print(e)
+        except asyncio.TimeoutError:
+            # User didn't respond in time
             await ctx.reply('You did not choose a valid song in time.')
+        except Exception as e:
+            # Something else went wrong
+            await ctx.reply(f'A error occurred!\nError:\n```py\n{e}```')
         else:
-            await self.play(ctx=ctx, name=f'{results[int(num.content) - 1]["url"]}')
+            # If nothing went wrong, just play the chosen song.
+            await self.play(ctx=ctx, name=f'{results[int(num.content) - 1]["webpage_url"]}')
 
     @search.error
     async def yeet(self, ctx, error):
         print(f'ctx: {ctx}\nError: {error}')
+
+    @commands.command()
+    async def stop(self, ctx):
+        """
+        Stops playing music.
+        :param ctx:
+        :return:
+        """
+        ctx.voice_client.stop()
+
+    @commands.command()
+    async def pause(self, ctx):
+        """
+        Pauses music.
+        :param ctx:
+        :return:
+        """
+        ctx.voice_client.pause()
 
 
 # setup function also is good

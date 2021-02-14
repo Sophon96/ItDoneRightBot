@@ -2,7 +2,7 @@
 # example code
 from discord.ext import commands
 import discord
-
+import distro
 import psutil
 import sys
 
@@ -17,16 +17,15 @@ class ServerStatus(commands.Cog):
         Gets server status
         ctx: discord.Context
         """
-        osr = open('/etc/os-release', 'r')
-        osname = osr.readline()[6:-2]
-        osr.close()
         embed = discord.Embed(title="Server Status", type="rich", color=0xFEFFFF)
         vmem = psutil.virtual_memory()
-        embed.add_field(name="RAM Usage", value=f"{round(vmem.used/1073741824, 2)}GiB out of {round(vmem.total/1073741824, 2)}GiB")
+        embed.add_field(name="RAM Usage", value=f"{round(vmem.used/1073741824, 2)}GiB out of "
+                                                f"{round(vmem.total/1073741824, 2)}GiB")
         embed.add_field(name="CPU Usage", value=f"{psutil.cpu_percent()}%")
         embed.add_field(name="Python information", value=sys.version, inline=True)
         embed.add_field(name="Platform information", value=sys.platform, inline=True)
-        embed.add_field(name="Linux distro", value=osname, inline=True)
+        if distro.name(pretty=True):
+            embed.add_field(name="Linux distro", value=distro.name(pretty=True), inline=True)
         await ctx.reply(mention_author=True, embed=embed)
 
     # @commands.command()

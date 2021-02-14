@@ -2,8 +2,7 @@
 from discord.ext import commands
 import discord
 import requests
-import sys
-import os
+
 
 class Misc(commands.Cog):
     def __init__(self, client):
@@ -39,7 +38,8 @@ class Misc(commands.Cog):
         lewdjson = requests.get(lewd).json()
         lewdimage = lewdjson['url']
         await ctx.send(lewdimage)
-    
+
+    @staticmethod
     def checkIfMDSP(ctx):
         return ctx.guild.id == 764981968579461130
 
@@ -115,7 +115,7 @@ class Misc(commands.Cog):
             else:
                 # print(2)
                 bad = discord.Embed(color=0xFEFFFF, title=f'Bad response getting xkcd {i}')
-                bad.add_field(name='Status code', value=a.status_code)
+                bad.add_field(name='Status code', value=str(a.status_code))
                 bad.add_field(name='Reason', value=a.reason)
                 await ctx.reply(embed=bad)
 
@@ -156,7 +156,7 @@ class Misc(commands.Cog):
                         embed.add_field(name='Players', value=f'{a["players"]["online"]}/{a["players"]["max"]}', inline=True)
                         try:
                             embed.add_field(name='Player Names', value=', '.join(a["players"]["list"]), inline=True)
-                        except:
+                        except KeyError:
                             embed.add_field(name='Player Names', value='Unknown', inline=True)
                     else:
                         embed.add_field(name='Players', value=f'0/{a["players"]["max"]}', inline=True)
@@ -170,6 +170,21 @@ class Misc(commands.Cog):
             except Exception as e:
                 embed.add_field(name=i, value=f'Something went wrong!\nException: {e}', inline=True)
             await ctx.reply(embed=embed)
+
+    @commands.command()
+    async def avatar(self, ctx, *user):
+        if not user:
+            await ctx.send(ctx.author.avatar_url)
+        else:
+            user = int(user[0].strip('<>@!'))
+            print(user)
+            user = self.client.get_user(user)
+            await ctx.send(user.avatar_url)
+
+    @avatar.error
+    async def _0001(self, ctx, error):
+        print(error)
+
 
 # So I need this thing apparently.
 # tbh idk what it does
