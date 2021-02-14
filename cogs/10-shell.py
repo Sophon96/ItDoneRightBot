@@ -1,6 +1,6 @@
-from discord.ext import commands
 import discord
 import asyncio
+from discord.ext import commands
 
 
 class Shell(commands.Cog):
@@ -22,7 +22,7 @@ class Shell(commands.Cog):
         a = ' '.join(args)
         b = compile(a, 'Discord', 'eval', optimize=2)
         c = eval(b)
-        embed = discord.Embed(title=f'Results', color=0xFEFFFF)
+        embed = discord.Embed(title='Results', color=0xFEFFFF)
         embed.add_field(name='Input', value=f'```py\n{a}\n```', inline=False)
         embed.add_field(name='Output', value=f'```\n{c}\n```', inline=False)
         await ctx.reply(embed=embed)
@@ -39,7 +39,7 @@ class Shell(commands.Cog):
         c = ' '.join(args)
         a = await asyncio.create_subprocess_shell(c, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
         b = await a.communicate()
-        embed = discord.Embed(type='rich', title=f'Results', color=0xFEFFFF)
+        embed = discord.Embed(type='rich', title='Results', color=0xFEFFFF)
         embed.add_field(name='Input', value=f'```sh\n{c}\n```', inline=False)
         embed.add_field(name='Output', value=f'```\n{b[0].decode()}\n```', inline=False)
         await ctx.reply(embed=embed)
@@ -61,4 +61,9 @@ class Shell(commands.Cog):
 
 
 def setup(client):
+    """
+    Setup function. Do not touch.
+    :param client:
+    :return:
+    """
     client.add_cog(Shell(client))
