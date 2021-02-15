@@ -54,19 +54,32 @@ async def reload(ctx, extension):
 @commands.is_owner()
 async def reload_all(ctx):
     a = [_cog for _cog in os.listdir("./cogs") if _cog.endswith('.py')]
-    embed = discord.Embed(title='Reloading all cogs', color=0xFEFFFF)
+    embed = discord.Embed(title='Reloading all cogs... <a:ch_loading:810641500676816916>', color=0xFEFFFF)
     for _cog in a:
         embed.add_field(name=_cog[:-3], value='🕙', inline=False)
     msg = await ctx.reply(embed=embed)
+    success = True
     for _cog in a:
         try:
             client.reload_extension(f'cogs.{_cog[:-3]}')
             embed.set_field_at(index=a.index(_cog), name=_cog[:-3], value='✅', inline=False)
             await msg.edit(embed=embed)
         except Exception as oh_fuck:
+            success = False
             embed.set_field_at(index=a.index(_cog), name=_cog[:-3], value=f'🔴 Error: {oh_fuck}', inline=False)
             await msg.edit(embed=embed)
-    await ctx.reply('Successfully reloaded all cogs.')
+    if success:
+        new_embed = discord.Embed(title='Successfully reloaded all cogs', color=0x85c781)
+        for field in embed.fields:
+            new_embed.add_field(name=field.name, value=field.value, inline=field.inline)
+        await msg.edit(embed=new_embed)
+        await ctx.reply('Successfully reloaded all cogs.')
+    else:
+        new_embed = discord.Embed(title='Error occured while reloading cogs', color=0xd14d4d)
+        for field in embed.fields:
+            new_embed.add_field(name=field.name, value=field.value, inline=field.inline)
+        await msg.edit(embed = new_embed)
+        await ctx.reply('An error occured while reloading cogs.')
 
 
 @reload_all.error
@@ -149,15 +162,18 @@ async def anna(ctx):
     await ctx.message.delete()
 
 
-def exit_handler():
+async def exit_handler():
     global client
-    client.close()
+    await client.close()
     _time_now = datetime.datetime.now()
     logger.info(f'---- Stop ---- {_time_now.year}-{_time_now.month}-{_time_now.day} '
                 f'{_time_now.hour}:{_time_now.minute}:{_time_now.second}.{_time_now.microsecond} ----\n')
 
+def eh_wrapper():
+    asyncio.run(exit_handler)
 
-atexit.register(exit_handler)
+
+atexit.register(eh_wrapper)
 if __name__ == "__main__":
     client.run(os.environ["DISCORD_BOT_KEY"])
 
