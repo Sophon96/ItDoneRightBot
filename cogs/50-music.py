@@ -24,7 +24,7 @@ class Music(commands.Cog):
         }
         self.ytdl = youtube_dl.YoutubeDL(options)
         # TODO: Implement queue
-        # self.queue = {}
+        self.queue = {}
 
     @commands.command()
     async def join(self, ctx):
@@ -85,6 +85,16 @@ class Music(commands.Cog):
         except KeyError:
             pass
         await ctx.reply(embed=embed)
+
+    @commands.command()
+    async def play_queue(self, ctx):
+        if ctx.guild.id in self.queue.keys() and len(self.queue[ctx.guild.id]['songs']) > 0:
+            guild_queue = self.queue[ctx.guild.id]
+            for i in guild_queue['songs']:
+                while ctx.voice_client is None or (not ctx.voice_client.is_playing() and not ctx.voice_client.is_paused()):
+                    await self.play(ctx=ctx, name=i)
+        else:
+            await ctx.reply('There are no songs in queue.')
 
     async def play(self, ctx, name):
         """
@@ -164,8 +174,16 @@ class Music(commands.Cog):
 
     @commands.command(name='play')
     async def _play(self, ctx, *name):
-        # Just calls the real play function
-        await self.play(ctx=ctx, name=' '.join(name))
+        if ctx.guild.id in self.queue.keys():
+            self.queue[ctx.guild.id]['songs'].append(' '.join(name))
+        else:
+            self.queue[ctx.guild.id] = {
+                'loop': True,
+                'songs': [
+
+                ]
+            }
+            self.queue[ctx.guild.id]['songs'].append(' '.join(name))
 
     @_play.error
     async def play_error(self, ctx, error):
@@ -246,6 +264,15 @@ class Music(commands.Cog):
         :return:
         """
         ctx.voice_client.pause()
+
+    @commands.command()
+    async def resume(self, ctx):
+        """
+        Resumes music.
+        :param ctx:
+        :return:
+        """
+        ctx.voice_client.resume()
 
 
 # setup function also is good
