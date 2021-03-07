@@ -2,6 +2,14 @@ from discord.ext import commands
 import discord
 import subprocess
 
+def cleanup_code(content):
+    """Automatically removes code blocks from the code."""
+    # remove ```py\n```
+    if content.startswith('```') and content.endswith('```'):
+        return '\n'.join(content.split('\n')[1:-1])
+    else:
+        return content
+    
 class Shell(commands.Cog):
     """
     The ability to execute shell or Python commands through my bot. These are only usable by <@560251455714361354>
@@ -11,56 +19,63 @@ class Shell(commands.Cog):
 
     @commands.command()
     @commands.is_owner()
-    async def exec(self, ctx, *args):
+    async def exec(self, ctx, *, args):
         """
         Execute Python code
         :param ctx:
         :param args:
         :return:
         """
-        # Just importing some stuff
-        # We are going to use os to remove the temporary file
-        # and tempfile to make the temporary file
-        import os
-        import tempfile
+        env = { #get all of the discord.py stuff in here so you can use them with {prefix}exec
+            'bot': bot,
+            'ctx': ctx,
+            'channel': ctx.channel,
+            'author': ctx.author,
+            'guild': ctx.guild,
+        }
 
-        # The way that this is going to work
-        # Is that we will write the command(s)
-        # the owner (probably me or you) has passed
-        # into a temporary file
-        #
-        # Then, we will use subprocess to use
-        # Python to execute that file
-        # 
-        # We are wrapping the file related things
-        # in a try finally block as we want the 
-        # file deleted even if the code errors
+        env.update(globals())
+        body = cleanup_code(body) #if you want to run you commands like this:
+        #```python
+        #print("hello world")
+        #```
+        stdout = io.StringIO()
 
-        # Make a temporary file using tempfile
-        # and assign the file descriptor to fd
-        # and the path of the file to path
-        fd, path = tempfile.mkstemp()
+        code_in_l = body.split("\n")
+        code_in = ""
+        for item in code_in_l:
+            if item.startswith(" "):
+                code_in += f"... {item}\n"
+            else:
+                code_in += f">>> {item}\n"
 
-        # Start of the try block and interaction
-        # with the file
+        to_compile = f'async def func():\n{textwrap.indent(body, "  ")}'
+
+        t1 = time.time() # start timer
         try:
-            # Open the file using a with statement
-            # so that the file will be automatically
-            # closed
-            with os.fdopen(fd, 'w') as tmp:
-                # Turn the arguments from a tuple to
-                # a string by putting spaces in between
-                # all of the values in the tuple
-                # and write it to the temporary file
-                tmp.write(' '.join(args))
-            # Use subprocess to use sh to use Python to
-            # execute the the file and then decode the 
-            # output (it's in binary by default) with 
-            # UTF-8 and assign it to c
-            c = subprocess.check_output(f'python3 {path}', shell=True).decode('utf-8')
-        # Removal of the file
-        finally:
-            os.remove(path)
+            exec(to_compile, env)
+        except Exception as e:
+            return await ctx.send(f'```py\n{code_in}\n{e.__class__.__name__}: {e}\n```')
+        func = env['func']
+        try:
+            with redirect_stdout(stdout):
+                ret = await func()
+                t2 = time.time()
+                timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+        except Exception:
+            value = stdout.getvalue()
+            t2 = time.time()
+            timep = f"#{(round((t2 - t1) * 1000000)) / 1000} ms"
+            c = (f'```py\n{code_in}\n{value}{traceback.format_exc()}\n{timep}\n```')
+        else:
+            value = stdout.getvalue()
+            if ret is None:
+                if value:
+                    c = (f'```py\n{code_in}\n{value}\n{timep}\n```')
+                else:
+                    c = (f"```py\n{code_in}\n{timep}\n```")
+            else:
+                c = (f'```py\n{code_in}\n{value}{ret}\n{timep}\n```')
         
         # Make a discord embed with the title of "Output of <command>",
         # the color of #FEFFFF (I would use #FFFFFF, but that's reserved),
